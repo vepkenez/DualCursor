@@ -20,17 +20,21 @@ All of the code is in [`Sources/main.swift`](Sources/main.swift). Installing a s
 
 ## The Ouija effect
 
-Move both devices at the same time and the cursor looks possessed. There is still only one
-real cursor, and each move is credited to whichever device moved most recently, so it swaps to
-the other device's saved spot, takes a step, and swaps back, many times a second. Both devices
-keep their own paths, and the one cursor flickers between them like a planchette with two sets
-of fingers on it. It's harmless and stops as soon as you use one device at a time; just don't
-click mid-séance, because the click lands wherever the cursor is at that instant.
+Move both devices at the same time and the cursor looks possessed. One device wins, and the
+other device's saved position gets overwritten with the winner's, so both end up in the same
+place. From then on they take turns: each move pushes the one cursor onward from wherever the
+other device left it, like a planchette with two sets of fingers on it. It's harmless; go back
+to one device at a time and each carries on with its own position from that shared spot. Just
+don't click mid-séance, because the click lands wherever the cursor is at that instant.
+
+(Why it merges: during rapid switching, a pointer event can still carry a location worked out
+before the last warp, so the position saved for the outgoing device is really the other
+device's spot.)
 
 It also makes a decent party game. Plug in three or more mice, give one to each person, and
 have the group steer the one cursor together: spell a word on the on-screen keyboard, close a
-window, draw something. Every mouse keeps its own spot and the cursor goes to whoever moved
-last, so the result is a lot like a real Ouija board.
+window, draw something. With everyone moving, all the mice share one spot and take turns
+nudging it, so the result is a lot like a real Ouija board.
 
 ## Build
 

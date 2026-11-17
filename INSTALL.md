@@ -39,20 +39,22 @@ Settings…** from the same menu.
 ## Using both at once: the Ouija effect
 
 Move the trackpad and the mouse at the same time and the cursor seems to be steered by an
-unseen hand. macOS only has one cursor, so DualCursor hands it back and forth: every time the
-other device moves, the cursor leaps to that device's spot, takes a step, and leaps back when
-the first device moves again. Each device keeps tracing its own path, but you only ever see one
-cursor flickering between the two, like a planchette with two people's fingers on it.
+unseen hand. One device wins the cursor, and the other device's saved spot gets overwritten
+with the winner's position, so both devices end up in the same place. From there they take
+turns: each move nudges the one cursor onward from wherever the other device just left it,
+like a planchette with two people's fingers on it.
 
-Nothing is wrong when this happens, and nothing breaks. Use one device at a time and it
-settles down at once. (Clicking while both are moving lands wherever the cursor happens to be
-at that instant, so don't do that on anything important.)
+Nothing breaks when this happens. Go back to using one device at a time and each one carries
+on with its own position again, starting from that shared spot. (A click while both are
+moving lands wherever the cursor happens to be at that instant, so don't do that on anything
+important.)
 
 ### Party trick: a group séance
 
 DualCursor doesn't stop at two. Plug in three, four or more mice, hand one to each person,
-and the whole group controls the computer together: every mouse keeps its own spot, and the
-one real cursor is pulled toward whoever moved last. Try steering it, together, to spell out a
+and the whole group controls the computer together: with everyone moving at once, all the mice
+end up sharing one spot and take turns nudging the cursor from wherever the last person left
+it. Try steering it, together, to spell out a
 word on the on-screen keyboard, close a window, or draw something in a paint app, and see
 whether the group can agree on anything at all. (A USB hub helps; Bluetooth mice work too.)
 
