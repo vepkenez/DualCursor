@@ -64,3 +64,7 @@ Don't replace the DMG on an existing release: each rebuild changes its checksum,
 `brew install` until the cask is updated. Release a new version instead.
 
 Debug output: run `~/Applications/DualCursor.app/Contents/MacOS/DualCursor --log` from a terminal.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
