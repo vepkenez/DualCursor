@@ -27,6 +27,11 @@ keep their own paths, and the one cursor flickers between them like a planchette
 of fingers on it. It's harmless and stops as soon as you use one device at a time; just don't
 click mid-séance, because the click lands wherever the cursor is at that instant.
 
+It also makes a decent party game. Plug in three or more mice, give one to each person, and
+have the group steer the one cursor together: spell a word on the on-screen keyboard, close a
+window, draw something. Every mouse keeps its own spot and the cursor goes to whoever moved
+last, so the result is a lot like a real Ouija board.
+
 ## Build
 
 ```bash

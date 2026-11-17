@@ -48,6 +48,14 @@ Nothing is wrong when this happens, and nothing breaks. Use one device at a time
 settles down at once. (Clicking while both are moving lands wherever the cursor happens to be
 at that instant, so don't do that on anything important.)
 
+### Party trick: a group séance
+
+DualCursor doesn't stop at two. Plug in three, four or more mice, hand one to each person,
+and the whole group controls the computer together: every mouse keeps its own spot, and the
+one real cursor is pulled toward whoever moved last. Try steering it, together, to spell out a
+word on the on-screen keyboard, close a window, or draw something in a paint app, and see
+whether the group can agree on anything at all. (A USB hub helps; Bluetooth mice work too.)
+
 ## Uninstall
 
 Quit it from the menu bar (turn off **Launch at Login** first if you turned it on) and move
