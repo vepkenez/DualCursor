@@ -4,6 +4,17 @@ A small macOS menu-bar app that gives each pointing device its own cursor positi
 trackpad, switch to the mouse, and the cursor jumps back to where the mouse left it, and the
 other way round. Works with any number of pointing devices. macOS 13+.
 
+## Install
+
+```bash
+brew tap vepkenez/tap
+brew trust --tap vepkenez/tap
+brew install --cask dualcursor
+```
+
+Or download the DMG from [Releases](https://github.com/vepkenez/DualCursor/releases). Either
+way, see [INSTALL.md](INSTALL.md) for the one-time "Open Anyway" step and the two permissions.
+
 ## How it works
 
 - **IOHIDManager** watches raw HID input, so the app knows which device just produced
@@ -46,5 +57,8 @@ nudging it, so the result is a lot like a real Ouija board.
 Both sign ad-hoc. That means each rebuild looks like a new app to macOS, so you'll need to
 re-grant the two permissions, and shared copies need "Open Anyway" once (see
 [INSTALL.md](INSTALL.md)).
+
+After publishing a new release, update `version` and `sha256` in
+[vepkenez/homebrew-tap](https://github.com/vepkenez/homebrew-tap) `Casks/dualcursor.rb`.
 
 Debug output: run `~/Applications/DualCursor.app/Contents/MacOS/DualCursor --log` from a terminal.

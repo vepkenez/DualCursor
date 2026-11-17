@@ -4,7 +4,19 @@ DualCursor gives your trackpad and your mouse their own cursor position. Use the
 switch to the mouse, and the cursor jumps back to where the mouse left it, and the other way
 round. It works with any number of pointing devices. Needs macOS 13 (Ventura) or later.
 
-## Install
+## Install with Homebrew
+
+```bash
+brew tap vepkenez/tap
+brew trust --tap vepkenez/tap
+brew install --cask dualcursor
+```
+
+Homebrew asks you to trust a tap before it loads anything from it; that's the middle line.
+Then follow steps 2–4 below to open it the first time and grant its permissions. Update later
+with `brew upgrade --cask dualcursor`.
+
+## Install from the download
 
 1. Drag **DualCursor** into the **Applications** folder.
 2. Open it from Applications. macOS will block it, because it is a small hobby app that isn't
@@ -61,5 +73,6 @@ whether the group can agree on anything at all. (A USB hub helps; Bluetooth mice
 ## Uninstall
 
 Quit it from the menu bar (turn off **Launch at Login** first if you turned it on) and move
-DualCursor from Applications to the Trash. You can also remove it from the Input Monitoring
+DualCursor from Applications to the Trash, or run `brew uninstall --cask dualcursor` if you
+installed it with Homebrew. You can also remove it from the Input Monitoring
 and Accessibility lists.
