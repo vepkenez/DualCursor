@@ -3,7 +3,7 @@
 # Output: dist/DualCursor-<version>.dmg
 #
 # The app is ad-hoc signed (no Apple Developer ID), so it is not notarized: recipients have to
-# allow it once in System Settings → Privacy & Security ("Open Anyway"). See "How to install.txt".
+# allow it once in System Settings → Privacy & Security ("Open Anyway"). See INSTALL.md.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -22,7 +22,7 @@ lipo -create build/DualCursor-arm64 build/DualCursor-x86_64 -output "$APP/Conten
 cp Info.plist "$APP/Contents/Info.plist"
 codesign --force --sign - --identifier local.dualcursor "$APP"
 
-cp "How to install.txt" "$STAGE/"
+cp INSTALL.md "$STAGE/"
 ln -s /Applications "$STAGE/Applications"
 
 rm -f "$DMG"

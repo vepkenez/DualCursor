@@ -15,7 +15,17 @@ other way round. Works with any number of pointing devices. macOS 13+.
   the trackpad doesn't take the cursor while you use the mouse.
 
 It needs **Input Monitoring** (to read HID input) and **Accessibility** (for the event tap).
-All of the code is in [`Sources/main.swift`](Sources/main.swift).
+All of the code is in [`Sources/main.swift`](Sources/main.swift). Installing a shared copy:
+[INSTALL.md](INSTALL.md).
+
+## The Ouija effect
+
+Move both devices at the same time and the cursor looks possessed. There is still only one
+real cursor, and each move is credited to whichever device moved most recently, so it swaps to
+the other device's saved spot, takes a step, and swaps back, many times a second. Both devices
+keep their own paths, and the one cursor flickers between them like a planchette with two sets
+of fingers on it. It's harmless and stops as soon as you use one device at a time; just don't
+click mid-séance, because the click lands wherever the cursor is at that instant.
 
 ## Build
 
@@ -26,6 +36,6 @@ All of the code is in [`Sources/main.swift`](Sources/main.swift).
 
 Both sign ad-hoc. That means each rebuild looks like a new app to macOS, so you'll need to
 re-grant the two permissions, and shared copies need "Open Anyway" once (see
-[How to install.txt](How%20to%20install.txt)).
+[INSTALL.md](INSTALL.md)).
 
 Debug output: run `~/Applications/DualCursor.app/Contents/MacOS/DualCursor --log` from a terminal.
