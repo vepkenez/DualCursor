@@ -60,5 +60,7 @@ re-grant the two permissions, and shared copies need "Open Anyway" once (see
 
 After publishing a new release, update `version` and `sha256` in
 [vepkenez/homebrew-tap](https://github.com/vepkenez/homebrew-tap) `Casks/dualcursor.rb`.
+Don't replace the DMG on an existing release: each rebuild changes its checksum, which breaks
+`brew install` until the cask is updated. Release a new version instead.
 
 Debug output: run `~/Applications/DualCursor.app/Contents/MacOS/DualCursor --log` from a terminal.
