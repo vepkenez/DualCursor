@@ -1,0 +1,50 @@
+DualCursor
+==========
+
+Gives your trackpad and your mouse their own cursor position. Use the trackpad, switch to
+the mouse, and the cursor jumps back to where the mouse left it, and the other way round.
+It works with any number of pointing devices. Needs macOS 13 (Ventura) or later.
+
+
+Install
+-------
+1. Drag DualCursor into the Applications folder.
+
+2. Open it from Applications. macOS will block it, because it is a small hobby app that isn't
+   registered with Apple. Click "Done" (not "Move to Trash").
+
+3. Open System Settings → Privacy & Security, scroll down to the message about DualCursor
+   being blocked, and click "Open Anyway". Confirm with your password or Touch ID.
+
+4. When DualCursor opens it asks for two permissions. Turn DualCursor on in both:
+     • System Settings → Privacy & Security → Input Monitoring
+       (to tell which device you moved)
+     • System Settings → Privacy & Security → Accessibility
+       (to move the cursor)
+   If it asks you to quit and reopen after Input Monitoring, do that.
+
+A small cursor icon appears in the menu bar. Done.
+
+
+Using it
+--------
+• The first time you use each device, the cursor stays where it is. From the next switch on,
+  each device gets its own position back.
+• Clicking or tapping without moving also switches.
+• A palm resting on the trackpad won't take over while you're using the mouse.
+
+Menu bar icon:
+• Enabled — turn it off for a while
+• Forget Saved Positions
+• Launch at Login — start it automatically
+• Quit DualCursor
+
+If it shows "⚠︎ Needs: …" in the menu, a permission is still missing. Use
+"Open Privacy Settings…" from the same menu.
+
+
+Uninstall
+---------
+Quit it from the menu bar, turn off Launch at Login first if you turned it on, and move
+DualCursor from Applications to the Trash. You can also remove it from the Input Monitoring
+and Accessibility lists.
