@@ -36,6 +36,7 @@ final class DualCursor {
     var tap: CFMachPort?
     var hid: IOHIDManager?
     var onChange: (() -> Void)?
+    var lastLocation: CGPoint?   // where the previous pointer event put the cursor
 
     // How recent HID activity must be to be attributed to a pointer event.
     let motionWindow: TimeInterval = 0.10
@@ -127,7 +128,10 @@ final class DualCursor {
     @discardableResult
     func startTap() -> Bool {
         if tap != nil { return true }
-        let types: [CGEventType] = [.mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown]
+        let types: [CGEventType] = [
+            .mouseMoved, .leftMouseDown, .rightMouseDown, .otherMouseDown,
+            .leftMouseDragged, .rightMouseDragged, .otherMouseDragged,
+        ]
         let mask = types.reduce(CGEventMask(0)) { $0 | (CGEventMask(1) << $1.rawValue) }
         let ctx = Unmanaged.passUnretained(self).toOpaque()
         guard let port = CGEvent.tapCreate(
@@ -151,36 +155,77 @@ final class DualCursor {
             if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
             return Unmanaged.passUnretained(event)
         }
-        guard enabled else { return Unmanaged.passUnretained(event) }
+        guard enabled, !isPausedForFrontmostApp() else { return Unmanaged.passUnretained(event) }
+
+        let isMove = type == .mouseMoved || type == .leftMouseDragged
+            || type == .rightMouseDragged || type == .otherMouseDragged
+        let dx = isMove ? event.getIntegerValueField(.mouseEventDeltaX) : 0
+        let dy = isMove ? event.getIntegerValueField(.mouseEventDeltaY) : 0
+        let location = event.location
+        var seenAt = location
+        defer { lastLocation = seenAt }
+
+        // A game in mouselook detaches the cursor from the mouse: deltas keep coming while the
+        // location stays put. Warping (and re-associating) then would break its camera control,
+        // so leave the switch for later, once the cursor moves freely again.
+        let locked = (dx != 0 || dy != 0) && lastLocation == location
 
         let now = ProcessInfo.processInfo.systemUptime
-        guard let src = currentSource(now: now), src.key != activeKey else {
+        guard !locked, let src = currentSource(now: now), src.key != activeKey else {
             return Unmanaged.passUnretained(event)
         }
 
-        // Remember where the previous device left the cursor (before this event's delta).
-        if let old = activeKey {
-            var p = event.location
-            if type == .mouseMoved {
-                p.x -= CGFloat(event.getIntegerValueField(.mouseEventDeltaX))
-                p.y -= CGFloat(event.getIntegerValueField(.mouseEventDeltaY))
-            }
-            saved[old] = p
-        }
+        // Where the cursor was before this event's delta: the previous device's spot.
+        let before = CGPoint(x: location.x - CGFloat(dx), y: location.y - CGFloat(dy))
+        if let old = activeKey { saved[old] = before }
 
         let previous = activeName ?? "none"
         activeKey = src.key
+        defer { onChange?() }
 
-        if let target = saved[src.key], isOnScreen(target) {
-            event.location = target
-            CGWarpMouseCursorPosition(target)
-            CGAssociateMouseAndMouseCursorPosition(1)  // no post-warp freeze
-            log("switch \(previous) -> \(src.name): restored (\(Int(target.x)), \(Int(target.y)))")
-        } else {
-            log("switch \(previous) -> \(src.name): first use, keeping cursor where it is")
+        // Mid-drag, a jump would drag whatever is being held (or spin a game camera): just
+        // hand the cursor over where it is.
+        let dragging = type == .leftMouseDragged || type == .rightMouseDragged
+            || type == .otherMouseDragged
+        guard !dragging, let target = saved[src.key], isOnScreen(target) else {
+            log("switch \(previous) -> \(src.name): keeping cursor where it is")
+            return Unmanaged.passUnretained(event)
         }
-        onChange?()
+
+        event.location = target
+        // Games that draw their own cursor (World of Warcraft, …) move it by adding up deltas
+        // and never see a warp, so make the jump part of this event's delta as well.
+        if isMove {
+            event.setIntegerValueField(.mouseEventDeltaX, value: Int64((target.x - before.x).rounded()))
+            event.setIntegerValueField(.mouseEventDeltaY, value: Int64((target.y - before.y).rounded()))
+        }
+        CGWarpMouseCursorPosition(target)
+        CGAssociateMouseAndMouseCursorPosition(1)  // no post-warp freeze
+        seenAt = target
+        log("switch \(previous) -> \(src.name): restored (\(Int(target.x)), \(Int(target.y)))")
         return Unmanaged.passUnretained(event)
+    }
+
+    // MARK: Paused apps
+
+    static let pausedAppsKey = "pausedBundleIDs"
+    var pausedBundleIDs: Set<String> = Set(UserDefaults.standard.stringArray(forKey: pausedAppsKey) ?? []) {
+        didSet { UserDefaults.standard.set(pausedBundleIDs.sorted(), forKey: Self.pausedAppsKey) }
+    }
+    var frontmostBundleID: String? = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+
+    func isPausedForFrontmostApp() -> Bool {
+        guard let id = frontmostBundleID else { return false }
+        return pausedBundleIDs.contains(id)
+    }
+
+    func watchFrontmostApp() {
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification, object: nil, queue: .main
+        ) { [weak self] note in
+            let app = note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
+            self?.frontmostBundleID = app?.bundleIdentifier
+        }
     }
 
     func isOnScreen(_ p: CGPoint) -> Bool {
@@ -214,6 +259,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let opts = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
         _ = AXIsProcessTrustedWithOptions(opts)
 
+        dc.watchFrontmostApp()
         dc.startHID()
         if !dc.startTap() {
             log("event tap not available yet (grant Accessibility); retrying every 2s")
@@ -257,6 +303,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         toggle.target = self
         toggle.state = dc.enabled ? .on : .off
 
+        menu.addItem(pauseMenu())
+
         menu.addItem(withTitle: "Forget Saved Positions", action: #selector(forget), keyEquivalent: "").target = self
 
         let login = menu.addItem(withTitle: "Launch at Login", action: #selector(toggleLogin), keyEquivalent: "")
@@ -271,6 +319,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let i = NSMenuItem(title: title, action: nil, keyEquivalent: "")
         i.isEnabled = false
         return i
+    }
+
+    /// "Pause In" submenu: running apps (plus any already paused) — DualCursor stays out of the
+    /// way while a checked app is frontmost. For games that read the mouse in their own way.
+    private func pauseMenu() -> NSMenuItem {
+        let parent = NSMenuItem(title: "Pause In", action: nil, keyEquivalent: "")
+        let sub = NSMenu()
+        var names: [String: String] = [:]
+        for app in NSWorkspace.shared.runningApplications where app.activationPolicy == .regular {
+            if let id = app.bundleIdentifier, id != Bundle.main.bundleIdentifier {
+                names[id] = app.localizedName ?? id
+            }
+        }
+        for id in dc.pausedBundleIDs where names[id] == nil {
+            names[id] = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id)
+                .map { FileManager.default.displayName(atPath: $0.path) } ?? id
+        }
+        for (id, name) in names.sorted(by: { $0.value.localizedCaseInsensitiveCompare($1.value) == .orderedAscending }) {
+            let i = sub.addItem(withTitle: name, action: #selector(togglePaused(_:)), keyEquivalent: "")
+            i.target = self
+            i.representedObject = id
+            i.state = dc.pausedBundleIDs.contains(id) ? .on : .off
+        }
+        parent.submenu = sub
+        if !dc.pausedBundleIDs.isEmpty { parent.title = "Pause In (\(dc.pausedBundleIDs.count))" }
+        return parent
+    }
+
+    @objc func togglePaused(_ sender: NSMenuItem) {
+        guard let id = sender.representedObject as? String else { return }
+        if dc.pausedBundleIDs.contains(id) { dc.pausedBundleIDs.remove(id) } else { dc.pausedBundleIDs.insert(id) }
     }
 
     @objc func toggleEnabled() { dc.enabled.toggle() }

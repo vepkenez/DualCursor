@@ -29,6 +29,15 @@ It needs **Input Monitoring** (to read HID input) and **Accessibility** (for the
 All of the code is in [`Sources/main.swift`](Sources/main.swift). Installing a shared copy:
 [INSTALL.md](INSTALL.md).
 
+## Games
+
+Some games (World of Warcraft, for one) draw their own cursor and move it by adding up mouse
+movement, so they never see a warp. DualCursor also writes the jump into the switching event's
+movement, which lets those cursors follow. It leaves the cursor alone mid-drag and while a game
+has it locked for mouselook, so the camera doesn't spin. If a game still misbehaves, open the
+menu-bar icon → **Pause In** and tick the game: DualCursor stays out of the way while it's in
+front.
+
 ## The Ouija effect
 
 Move both devices at the same time and the cursor looks possessed. One device wins, and the
@@ -50,7 +59,7 @@ nudging it, so the result is a lot like a real Ouija board.
 ## Build
 
 ```bash
-./build.sh      # build and install to ~/Applications (your Mac's architecture)
+./build.sh      # build and install to /Applications (your Mac's architecture)
 ./package.sh    # universal build + dist/DualCursor-<version>.dmg to share
 ```
 
@@ -63,7 +72,7 @@ After publishing a new release, update `version` and `sha256` in
 Don't replace the DMG on an existing release: each rebuild changes its checksum, which breaks
 `brew install` until the cask is updated. Release a new version instead.
 
-Debug output: run `~/Applications/DualCursor.app/Contents/MacOS/DualCursor --log` from a terminal.
+Debug output: run `/Applications/DualCursor.app/Contents/MacOS/DualCursor --log` from a terminal.
 
 ## License
 
